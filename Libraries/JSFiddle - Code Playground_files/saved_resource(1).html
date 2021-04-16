@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<!-- saved from url=(0055)https://fiddle.jshell.net/_display/?editor_console=true -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title></title>
+  
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <script type="text/javascript" src="./dummy.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="./result-light.css">
+
+
+  <style id="compiled-css" type="text/css">
+      table{
+  border-collapse: collapse;
+  width: 200px;
+  height: 100px;
+  text-align: center;
+}
+
+td{
+  border: 3px solid black;
+}
+
+#specialCell{
+  border-right: 3px solid blue;
+}
+
+#otherSpecialCell{
+  border-left: 4px solid green;
+}
+
+#redBorder{
+  border-left: 4px solid red;
+}
+    /* EOS */
+  </style>
+
+  <script id="insert"></script>
+
+
+    <script src="./stringify.js" charset="utf-8"></script>
+    <script>
+      const customConsole = (w) => {
+        const pushToConsole = (payload, type) => {
+          w.parent.postMessage({
+            console: {
+              payload: stringify(payload),
+              type:    type
+            }
+          }, "*")
+        }
+
+        w.onerror = (message, url, line, column) => {
+          // the line needs to correspond with the editor panel
+          // unfortunately this number needs to be altered every time this view is changed
+          line = line - 70
+          if (line < 0){
+            pushToConsole(message, "error")
+          } else {
+            pushToConsole(`[${line}:${column}] ${message}`, "error")
+          }
+        }
+
+        let console = (function(systemConsole){
+          return {
+            log: function(){
+              let args = Array.from(arguments)
+              pushToConsole(args, "log")
+              systemConsole.log.apply(this, args)
+            },
+            info: function(){
+              let args = Array.from(arguments)
+              pushToConsole(args, "info")
+              systemConsole.info.apply(this, args)
+            },
+            warn: function(){
+              let args = Array.from(arguments)
+              pushToConsole(args, "warn")
+              systemConsole.warn.apply(this, args)
+            },
+            error: function(){
+              let args = Array.from(arguments)
+              pushToConsole(args, "error")
+              systemConsole.error.apply(this, args)
+            },
+            system: function(arg){
+              pushToConsole(arg, "system")
+            }
+          }
+        }(window.console))
+
+        window.console = console
+
+        console.system("Running fiddle")
+      }
+
+      if (window.parent){
+        customConsole(window)
+      }
+    </script>
+</head>
+<body>
+    <table>
+<tbody>
+  <tr>
+    <td></td>
+    <td></td>
+    <td id="otherSpecialCell"> 1 </td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td id="specialCell"> 2 </td>
+    <td></td>
+    <td></td>
+  </tr>
+</tbody>
+</table>
+
+<p>
+The border on the "otherSpecialCell" has to be 4px large to be able to show up while the border on the "specialCell" only has to be 3px large before it shows up. (showing. that border-right has precidence over border-left)
+</p>
+
+<table>
+<tbody>
+  <tr>
+    <td></td>
+    <td></td>
+    <td id="redBorder"> 3 </td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+</tbody>
+</table>
+
+<p> The red border is drawn above the top border aswell as the border along the middle of the table</p>
+
+    <script type="text/javascript">//<![CDATA[
+
+
+//
+
+//This difference between
+
+
+  //]]></script>
+
+  <script>
+    // tell the embed parent frame the height of the content
+    if (window.parent && window.parent.parent){
+      window.parent.parent.postMessage(["resultsFrame", {
+        height: document.body.getBoundingClientRect().height,
+        slug: ""
+      }], "*")
+    }
+
+    // always overwrite window.name, in case users try to set it manually
+    window.name = "result"
+  </script>
+
+    <script>
+      let allLines = []
+
+      window.addEventListener("message", (message) => {
+        if (message.data.console){
+          let insert = document.querySelector("#insert")
+          allLines.push(message.data.console.payload)
+          insert.innerHTML = allLines.join(";\r")
+
+          let result = eval.call(null, message.data.console.payload)
+          if (result !== undefined){
+            console.log(result)
+          }
+        }
+      })
+    </script>
+
+
+
+</body></html>

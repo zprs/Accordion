@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!-- saved from url=(0051)https://jsfiddle.net/zpr52024/7otf8q20/17/embedded/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    
+    <meta http-equiv="edit-Type" edit="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JSFiddle</title>
+
+      <meta name="robots" content="index, follow">
+      <meta name="googlebot" content="index, follow">
+
+      <script type="text/javascript">
+        var height
+        var force_height = null
+        var slug = "7otf8q20"
+        var show_src = "//fiddle.jshell.net/zpr52024/7otf8q20/17/show/light/"
+        var resize_element_counter = 0
+        var shell_edit_url = "/zpr52024/7otf8q20/17/light/"
+
+      </script>
+
+      <script src="./highlight.pack.js"></script>
+      <script src="./embed.js"></script>
+      <link rel="stylesheet" media="screen" href="./embed-light.css">
+
+    <style type="text/css" media="screen">
+    /* */</style>
+
+  </head>
+  <body>
+    <div id="full-embed">
+        <header>
+          <h1>
+            <a href="https://jsfiddle.net/zpr52024/7otf8q20/17/" target="_blank">
+              <svg width="34" height="40">
+      <use xlink:href="//jsfiddle.net/sprite.svg#logo"></use>
+    </svg>Edit in JSFiddle
+            </a>
+          </h1>
+          <div id="actions">
+            <ul class="normalRes">
+                <li class="active">
+                  <a data-trigger-type="js" href="https://jsfiddle.net/zpr52024/7otf8q20/17/embedded/#JavaScript">JavaScript</a>
+                </li>
+                <li class="">
+                  <a data-trigger-type="html" href="https://jsfiddle.net/zpr52024/7otf8q20/17/embedded/#HTML">HTML</a>
+                </li>
+                <li class="">
+                  <a data-trigger-type="css" href="https://jsfiddle.net/zpr52024/7otf8q20/17/embedded/#CSS">CSS</a>
+                </li>
+                <li class="">
+                  <a data-trigger-type="result" href="https://jsfiddle.net/zpr52024/7otf8q20/17/embedded/#Result">Result</a>
+                </li>
+            </ul>
+            <div class="hl" style="left: 0px; width: 87.6719px;"></div>
+          </div>
+        </header>
+
+        <div id="tabs">
+              <pre class="tCont JavaScript active hljs"><span class="hljs-comment">//</span>
+
+<span class="hljs-comment">//This difference between</span></pre>
+              <pre class="tCont HTML hljs"><span class="hljs-tag">&lt;<span class="hljs-name">table</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">tbody</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"otherSpecialCell"</span>&gt;</span> 1 <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"specialCell"</span>&gt;</span> 2 <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">tbody</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>
+The border on the "otherSpecialCell" has to be 4px large to be able to show up while the border on the "specialCell" only has to be 3px large before it shows up. (showing. that border-right has precidence over border-left)
+<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">table</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">tbody</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"redBorder"</span>&gt;</span> 3 <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">tbody</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>
+the green border shown in
+<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span></pre>
+              <pre class="tCont CSS hljs"><span class="hljs-selector-tag">table</span>{
+  <span class="hljs-attribute">border-collapse</span>: collapse;
+  <span class="hljs-attribute">width</span>: <span class="hljs-number">200px</span>;
+  <span class="hljs-attribute">height</span>: <span class="hljs-number">100px</span>;
+  <span class="hljs-attribute">text-align</span>: center;
+}
+
+<span class="hljs-selector-tag">td</span>{
+  <span class="hljs-attribute">border</span>: <span class="hljs-number">3px</span> solid black;
+}
+
+<span class="hljs-selector-id">#specialCell</span>{
+  <span class="hljs-attribute">border-right</span>: <span class="hljs-number">3px</span> solid blue;
+}
+
+<span class="hljs-selector-id">#otherSpecialCell</span>{
+  <span class="hljs-attribute">border-left</span>: <span class="hljs-number">4px</span> solid green;
+}
+
+<span class="hljs-selector-id">#otherSpecialCell</span>{
+  <span class="hljs-attribute">border-left</span>: <span class="hljs-number">4px</span> solid red;
+}</pre>
+              <div class="tCont result " id="result">
+              </div>
+        </div>
+    </div>
+    
+  
+
+</body></html>
