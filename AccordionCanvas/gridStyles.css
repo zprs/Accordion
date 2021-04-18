@@ -65,3 +65,14 @@ canvas
 {
     cursor: pointer;
 }
+
+#saveButton
+{
+    margin-top: 95vh;
+   height: 5vh;
+}
+#loadButton
+{
+    margin-top: 95vh;
+   height: 5vh;
+}

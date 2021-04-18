@@ -9,7 +9,6 @@ function setUpDropdowns(section)
     });
     
     resetInstrumentDropdown(section);
-
 }
 
 function resetInstrumentDropdown(section)
@@ -30,7 +29,7 @@ function updateEditBoxForSection(section)
 {
     updateEditSectionBoxColor();
     setUpDropdowns(section);
-    $("#sectionVolume").val(section.volume);
+    $("#sectionVolume").val(section.volume.value);
     $("#sectionColorPicker").val(section.color);
 }
 
@@ -45,11 +44,13 @@ function updateEditSectionBoxColor()
     $("#sectionEditorContainer").css('background-color', LightenDarkenColor(currentPart.color, 100));
 }
 
+//Value Change Events --------
+
 $("#sectionVolume").change(() => {
 
     let volume = $("#sectionVolume").val()
     console.log(volume);
-    changeSectionVolume(volume / 2 - 25);
+    changeSectionVolume(volume);
 });
 
 $("#instrumentTypeSelector").change(() => {
@@ -67,6 +68,7 @@ $("#instrumentSelector").change(() => {
     updateSectionInstrument(type, val);
 });
 
+//----------------------------
 
 function updateSectionInstrument(type, val)
 {
@@ -77,6 +79,6 @@ function updateSectionInstrument(type, val)
 
 function changeSectionVolume(val)
 {
-    currentPart.volume = val;
+    currentPart.volume.value = val;
     currentPart.instrumentObj.volume.value = val;
 }

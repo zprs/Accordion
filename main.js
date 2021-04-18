@@ -1,47 +1,135 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron')
-const path = require('path')
+const {app, BrowserWindow, dialog, ipcMain} = require('electron')
+const path = require('path');
+const fs = require('fs');
 
-// import A1Sample from '';
-// import A2Sample from '../Instruments/Test1/A2.mp3';
+let mainWindow;
 
 function createWindow () {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      nodeIntegration: true
+      nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true,
     }
   })
 
-  // and load the index.html of the app.
-  mainWindow.loadFile('index.html')
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  mainWindow.loadFile('index.html');
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  createWindow()
+  createWindow();
 
-  app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
-})
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0)
+      createWindow();
+  });
+});
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
+
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
-})
+});
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+
+//Accept incoming comms from other process
+
+let defaultExtension = "accordion";
+
+ipcMain.on('saveFile', (event, data) => {
+
+  let options = {
+    message: "Save Music File As"
+  };
+
+  dialog.showSaveDialog(mainWindow, options).then((response) =>
+  {
+    if(response.canceled)
+      return;
+
+    let filePath = fixPath(response.filePath);
+
+    if(fs.existsSync(filePath))
+      dialog.showMessageBox(mainWindow, {message: "There is already a file in this location with the same name", buttons: ["Cancel", "Overwrite"]}).then((overwriteResponseIndex) =>
+      {
+        if(overwriteResponseIndex.response == 1)
+          writeFile(filePath, data);
+      })
+    else
+      writeFile(filePath, data);
+    
+  });
+});
+
+function fixPath(fpath)
+{
+  let ext = fpath.split('.').pop();
+
+  if(ext != defaultExtension)
+    fpath += "." + defaultExtension;
+
+  return fpath;
+  
+}
+
+function writeFile(filePath, data)
+{
+  fs.writeFile(filePath, JSON.stringify(data), (err) =>
+  {
+    if (err) 
+      console.log(err);
+    else
+      console.log("success writing file");
+  
+  });
+}
+
+ipcMain.on('openFile', (event, data) => {
+
+  let options = {
+    message: "Open music file",
+    filters: [
+      { name: 'musicFiles', extensions: [defaultExtension] }
+    ]
+  };
+
+  dialog.showOpenDialog(mainWindow, options).then((response) =>
+  {
+    if(response.canceled)
+      return;
+
+    fs.readFile(response.filePaths[0], 'utf8' , (err, data) => {
+      if (err) {
+        console.error(err)
+        return
+      }
+      
+      let obj = {};
+      let success = false;
+
+      try{
+        obj = JSON.parse(data);
+        success = true;
+      }
+      catch
+      {
+        dialog.showMessageBox(mainWindow, {message: "The file is unable to be parsed", type: "error"});
+        console.log("JSON Object not able to be parsed. File is corrupted.");
+        success = false;
+      }
+
+      if(success)
+      {
+        console.log("file loaded, sending reply to renderer");
+        console.log(event);
+        event.reply('openFileReply', obj);
+      }
+      else
+        console.log("big sad :(");
+    })
+
+  });
+});

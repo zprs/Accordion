@@ -20,12 +20,13 @@ let sectionArangement = [];
 let sections = [];
 
 //DefaultInstrument instrument
-const defaultInstrument = () => instruments.synth.triangle();
+let defaultInstrumentType = "synth";
+let defaultInstrument = "triangle";
 
 let notesPerMeasure = 4;
 let measurePerPart = 4;
 let numberOfPartsPerSong = 8;
-let numberOfOctaves = 5;
+let numberOfOctaves = 4;
 let startingOctave = 2;
 
 Tone.Transport.timeSignature = 4;
@@ -43,8 +44,10 @@ let playingMusic = false;
 let currentPart = null;
 
 //This will be used as our "blocks" of music that are able to be played
-function createSection(voice)
+function createSection(instrumentType, instrument)
 {
+
+    
     let newNoteGrid = {};
 
     for(let x = 0; x < noteColumnCount; x++)
@@ -62,15 +65,27 @@ function createSection(voice)
     let createdPart = {
         part: null,
         partObj: {}, //When adding a note to the part, we also add it to this object (A way to save the state because it is hard to get values back out of part once they are put in)
+        instrumentObj: null,
         noteGrid: newNoteGrid,
         color: color,
-        instrumentObj: voice,
-        instrument: "triangle",
+        instrument: instrument,
         instrumentType: "synth",
-        volume: voice.volume
+        volume: null
     }
 
-    createdPart.part = new Tone.Part(function(time, value){
+    createdPart.instrumentObj = instruments[createdPart.instrumentType][createdPart.instrument]();
+    createdPart.volume = createdPart.instrumentObj.volume;
+    createdPart.part = newPart(createdPart);
+    
+    createdPart.part.loop = true;
+    createdPart.part.loopEnd = measurePerPart + "m";
+
+    sections.push(createdPart);
+}
+
+function newPart(part)
+{
+    return new Tone.Part(function(time, value){
 
         let noteKeys = Object.keys(value.notes);
 
@@ -78,14 +93,35 @@ function createSection(voice)
         {   
             let note = noteKeys[i];
             let noteObj = value.notes[note];
-            createdPart.instrumentObj.triggerAttackRelease(note, noteObj.length, time, 0.5);
+            part.instrumentObj.triggerAttackRelease(note, noteObj.length, time, 0.5);
         }
     });
+}
 
+function createSectionFromTemplate(obj)
+{
+    let instrument = instruments[obj.instrumentType][obj.instrument]();
+
+    let createdPart = {
+        part: null,
+        partObj: obj.partObj, //When adding a note to the part, we also add it to this object (A way to save the state because it is hard to get values back out of part once they are put in)
+        instrumentObj: instrument,
+        noteGrid: obj.noteGrid,
+        color: obj.color,
+        instrument: obj.instrument,
+        instrumentType: obj.instrumentType,
+        volume: instrument.volume
+    }
+
+    createdPart.volume.value = obj.volume;
+    
+    createdPart.part = newPart(createdPart);
     createdPart.part.loop = true;
     createdPart.part.loopEnd = measurePerPart + "m";
 
-    return createdPart;
+    sections.push(createdPart);
+
+    AddAllNotesInPartObj(createdPart.part, createdPart.partObj);
 }
 
 function SetTimeSignature(timeSignatureTop, timeSignatureBot) { Tone.Transport.timeSignature = [timeSignatureTop, timeSignatureBot]; }

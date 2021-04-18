@@ -295,7 +295,7 @@ function createArrBoxSelection(startX, startY, width, height)
     if(selection.y != -1)
     {
         if(mouse.clickedDown)
-            AddNewSection();
+            AddNewSectionDefault();
         else
             createBoxHovered = true;
     }
@@ -437,9 +437,9 @@ function selectNewArrangementSection(index)
     updateEditBoxForSection(sections[index]);
 }
 
-function AddNewSection()
+function AddNewSectionDefault()
 {
-    sections.push(createSection(defaultInstrument()));
+    createSection(defaultInstrumentType, defaultInstrument);
     let sectionIndex = sections.length - 1;
 
     currentPart = sections[sectionIndex];
@@ -448,6 +448,19 @@ function AddNewSection()
 
     for (let i = 0; i < numberOfPartsPerSong; i++) {
         toggleSection(sectionIndex, i, i == 0);
+    }
+
+    if(playingMusic)
+        togglePlayPause();
+}
+
+function AddNewSection(obj, arrangementArr)
+{
+    createSectionFromTemplate(obj);
+    let sectionIndex = sections.length - 1;
+
+    for (let i = 0; i < numberOfPartsPerSong; i++) {
+        toggleSection(sectionIndex, i, arrangementArr[i].enabled);
     }
 
     if(playingMusic)

@@ -28,13 +28,15 @@
             <br>
             <label> Volume </label>
             <div class="slidecontainer">
-                <input type="range" min="1" max="100" value="50" class="slider" id="sectionVolume">
+                <input type="range" min="-25" max="25" value="0" class="slider" id="sectionVolume">
             </div>
 
             <label> Section Color </label>
             <input type="color" id="sectionColorPicker" onchange="updateSectionColor()" value="#ff0000">
-
         </div>
+
+        <input type="button" id="saveButton" value="save" onclick="saveFile()">
+        <input type="button" id="loadButton" value="load" onclick="openFile()">
     </body>
     
     <script src="scales.js"></script>
@@ -42,12 +44,14 @@
     <script src="AccordionCanvas/addRmNotes.js"></script>
     <script src="AccordionCanvas/instruments.js"></script>
 
-    <script src="AccordionCanvas/mouseHandler.js"></script>
-
+    <script src="AccordionCanvas/Input/mouseHandler.js"></script>
+    
     <script src="AccordionCanvas/noteGridRenderer.js"></script>
     <script src="AccordionCanvas/arrangementRenderer.js"></script>
     <script src="AccordionCanvas/sectionEditor.js"></script>
-
+    
+    <script src="AccordionCanvas/fileManagement.js"></script>
+    
     <script src="AccordionCanvas/canvasRenderer.js"></script>
-    <script src="AccordionCanvas/keyboardEvents.js"></script>
+    <script src="AccordionCanvas/Input/keyboardEvents.js"></script>
 </html>

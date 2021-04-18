@@ -1,17 +1,29 @@
 function UpdateNote(x, y, enabled, length)
 {
-    var time = cooridantesToNoteTiming(x);
-    var note = cooridantesToNoteValue(y);
+    let time = cooridantesToNoteTiming(x);
+    let note = cooridantesToNoteValue(y);
 
     if(enabled)
     {
-        var formatedNoteLength = lengthToBeats(length);
+        let formatedNoteLength = lengthToBeats(length);
 
         console.log("Length: " + length);
         AddNote(currentPart.part, currentPart.partObj, time, note, formatedNoteLength, 1);
     }
     else
         RemoveNote(currentPart.part, currentPart.partObj, time, note);
+}
+
+function AddAllNotesInPartObj(part, partObj)
+{
+    let timeStamps = Object.keys(partObj);
+
+    for (let i = 0; i < timeStamps.length; i++) {
+        const time = timeStamps[i];
+        
+        let obj = {time: time, notes: partObj[time].notes};
+        part.add(obj);
+    }
 }
 
 function AddNote(part, partObj, time, note, length, velocity)
@@ -24,18 +36,16 @@ function AddNote(part, partObj, time, note, length, velocity)
     else
         part.remove(time);
 
-    var newNote = {length: length, velocity: velocity};
+    let newNote = {length: length, velocity: velocity};
     partObj[time].notes[note] = (newNote);
 
     let obj = {time: time, notes: partObj[time].notes};
     part.add(obj);
-
-    console.log(time);
 }
 
 function RemoveNote(part, partObj, time, note)
 {
-    if(!partObj[time]) //There shouldnt be any notes there. If so something is wrong
+    if(!partObj[time]) //There should be a note there. If there isn't, something is wrong
     {
         console.log("nothing here m8")
         return;
@@ -72,17 +82,17 @@ function lengthToBeats(length)
 
 function cooridantesToNoteValue(y)
 {
-    var octave = Math.floor((noteRowCount - 1 - y) / currentScale.length) + startingOctave;
-    var scaleNoteIndex = (noteRowCount - 1 - y) % currentScale.length; 
+    let octave = Math.floor((noteRowCount - 1 - y) / currentScale.length) + startingOctave;
+    let scaleNoteIndex = (noteRowCount - 1 - y) % currentScale.length; 
     return currentScale[scaleNoteIndex] + octave;
 }
 
 function cooridantesToNoteTiming(x)
 {
     //1:1:2 means measure 2, beat 2, 3rd sixteenth.
-    var bars = Math.floor(x / notesPerMeasure);
-    var beats = x % notesPerMeasure;
-    var sixteenths = 0; // to be implemented later in some form
+    let bars = Math.floor(x / notesPerMeasure);
+    let beats = x % notesPerMeasure;
+    let sixteenths = 0; // to be implemented later in some form
 
     return bars + ":" + beats + ":" + sixteenths
 }

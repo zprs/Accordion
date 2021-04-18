@@ -32,7 +32,7 @@ let lastFrameTime = 0;
 let fps = 40;
 let fpsInterval = 1000 / fps;
 
-function start()
+function startCanvas()
 {
     noteGridCanvas = createHiDPICanvas("noteCanvas", window.innerWidth, (noteHeight + notePadding) * noteRowCount + notePadding, 2);
     arrCavnas = createHiDPICanvas("arrangementCanvas", window.innerWidth, window.innerHeight, 2);
@@ -41,8 +41,7 @@ function start()
     ctxArr = arrCavnas.getContext("2d");
 
     SetBPM(240);
-
-    AddNewSection();
+    AddNewSectionDefault();
     setLoopStartAndEnd(loopSelectionIndexes.start, loopSelectionIndexes.end);
     lastFrameTime = Date.now();
 
@@ -96,4 +95,4 @@ function positionValues(id)
     }
 }
 
-start();
+startCanvas();

@@ -110,7 +110,6 @@ function drawPlayBar(ctx, startX, startY, part)
     var fullWidth = (notePadding + noteWidth) * (noteColumnCount - 1);
     var xPosition = part.progress * fullWidth;
 
-
     ctx.beginPath();
     ctx.fillStyle = currentPart.color;
     ctx.rect(startX + xPosition, startY, -barWidth, (notePadding + noteHeight) * noteRowCount);
