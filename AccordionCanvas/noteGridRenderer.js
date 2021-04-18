@@ -5,7 +5,6 @@ var noteWidth = 30;
 var noteHeight = 20;
 
 var noteHighlightedColors = ["#ff4040", "#ff8c40", "#ffdc40", "#a9ff40", "#47ffa6", "#47fff9","#78a9ff", "#4772ff", "#9747ff","#d063ff", "#f647ff", "#ff478e"]; 
-var scaleTextColor = "#037ffc";
 
 var noteLength = 1;
 var maxNoteLength = 5;
@@ -48,9 +47,9 @@ function updateDrawNoteGrid(ctx)
         drawPlayBar(ctx, gridStartX, gridStartY, currentPart.part);
 }
 
-function updateNoteGridSelection(startX, startY, width, height)
+function updateNoteGridSelection(posValues)
 {
-    let selectedNoteIndex = gridSelection(octaveStartX + startX, gridStartY + startY, noteWidth, noteHeight, notePadding, noteColumnCount, noteRowCount, width, height);
+    let selectedNoteIndex = gridSelection(octaveStartX + posValues.startX, gridStartY + posValues.startY, noteWidth, noteHeight, notePadding, noteColumnCount, noteRowCount, posValues.width, posValues.height);
     noteSelection(selectedNoteIndex.x, selectedNoteIndex.y);
     
     //Note in grid is clicked - Toggle that note
@@ -98,7 +97,7 @@ function drawOctaveNotes(ctx, startX, startY, _scale)
         ctx.rect(startX, addStartY, noteWidth, noteHeight);
         ctx.fill();
 
-        ctx.fillStyle = scaleTextColor;
+        ctx.fillStyle = currentPart.color;
         ctx.fillText(scaleNote, startX + noteWidth / 2, addStartY + noteHeight / 2 + notePadding, noteWidth);
     }
 }
@@ -113,7 +112,7 @@ function drawPlayBar(ctx, startX, startY, part)
 
 
     ctx.beginPath();
-    ctx.fillStyle = scaleTextColor;
+    ctx.fillStyle = currentPart.color;
     ctx.rect(startX + xPosition, startY, -barWidth, (notePadding + noteHeight) * noteRowCount);
     ctx.fill();
 }

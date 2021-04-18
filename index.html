@@ -11,16 +11,42 @@
         <div id="sectionArrangementContainer">
             <canvas id="arrangementCanvas"></canvas>
         </div>
+        <div id="sectionEditorContainer">
+            <label> Instrument Type</label>
+            <select name="InstrumentType" id="instrumentTypeSelector">
+                <option value="midi">Synth</option>
+                <option value="saab">MIDI</option>
+            </select>
+            <br>
+            <label> Instrument </label>
+            <select name="Instruments" id="instrumentSelector">
+                <option value="volvo">Volvo</option>
+                <option value="saab">Saab</option>
+                <option value="mercedes">Mercedes</option>
+                <option value="audi">Audi</option>
+            </select>
+            <br>
+            <label> Volume </label>
+            <div class="slidecontainer">
+                <input type="range" min="1" max="100" value="50" class="slider" id="sectionVolume">
+            </div>
+
+            <label> Section Color </label>
+            <input type="color" id="sectionColorPicker" onchange="updateSectionColor()" value="#ff0000">
+
+        </div>
     </body>
     
     <script src="scales.js"></script>
     <script src="AccordionCanvas/notePlayer.js"></script>
     <script src="AccordionCanvas/addRmNotes.js"></script>
+    <script src="AccordionCanvas/instruments.js"></script>
 
     <script src="AccordionCanvas/mouseHandler.js"></script>
 
     <script src="AccordionCanvas/noteGridRenderer.js"></script>
     <script src="AccordionCanvas/arrangementRenderer.js"></script>
+    <script src="AccordionCanvas/sectionEditor.js"></script>
 
     <script src="AccordionCanvas/canvasRenderer.js"></script>
     <script src="AccordionCanvas/keyboardEvents.js"></script>

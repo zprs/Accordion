@@ -19,8 +19,8 @@ let sectionArangement = [];
 // 1D array of all of the sections
 let sections = [];
 
-//Temporary instrument
-const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+//DefaultInstrument instrument
+const defaultInstrument = () => instruments.synth.triangle();
 
 let notesPerMeasure = 4;
 let measurePerPart = 4;
@@ -43,23 +43,8 @@ let playingMusic = false;
 let currentPart = null;
 
 //This will be used as our "blocks" of music that are able to be played
-function createSection(instrument)
+function createSection(voice)
 {
-    let part = new Tone.Part(function(time, value){
-
-        let noteKeys = Object.keys(value.notes);
-
-        for(let i = 0; i < noteKeys.length; i++)
-        {   
-            let note = noteKeys[i];
-            let noteObj = value.notes[note];
-            instrument.triggerAttackRelease(note, noteObj.length, time, 0.5);
-        }
-    });
-
-    part.loop = true;
-    part.loopEnd = measurePerPart + "m";
-
     let newNoteGrid = {};
 
     for(let x = 0; x < noteColumnCount; x++)
@@ -75,12 +60,30 @@ function createSection(instrument)
     let color = noteHighlightedColors[sections.length];
 
     let createdPart = {
-        part: part,
+        part: null,
         partObj: {}, //When adding a note to the part, we also add it to this object (A way to save the state because it is hard to get values back out of part once they are put in)
         noteGrid: newNoteGrid,
-        color: color
+        color: color,
+        instrumentObj: voice,
+        instrument: "triangle",
+        instrumentType: "synth",
+        volume: voice.volume
     }
 
+    createdPart.part = new Tone.Part(function(time, value){
+
+        let noteKeys = Object.keys(value.notes);
+
+        for(let i = 0; i < noteKeys.length; i++)
+        {   
+            let note = noteKeys[i];
+            let noteObj = value.notes[note];
+            createdPart.instrumentObj.triggerAttackRelease(note, noteObj.length, time, 0.5);
+        }
+    });
+
+    createdPart.part.loop = true;
+    createdPart.part.loopEnd = measurePerPart + "m";
 
     return createdPart;
 }

@@ -2,6 +2,9 @@
 const {app, BrowserWindow} = require('electron')
 const path = require('path')
 
+// import A1Sample from '';
+// import A2Sample from '../Instruments/Test1/A2.mp3';
+
 function createWindow () {
   // Create the browser window.
   const mainWindow = new BrowserWindow({

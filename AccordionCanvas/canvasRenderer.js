@@ -43,7 +43,7 @@ function start()
     SetBPM(240);
 
     AddNewSection();
-
+    setLoopStartAndEnd(loopSelectionIndexes.start, loopSelectionIndexes.end);
     lastFrameTime = Date.now();
 
     window.requestAnimationFrame(updateCanvas);
@@ -54,27 +54,16 @@ function updateCanvas()
     now = Date.now();
     let elapsed = now - lastFrameTime;
 
-    let noteGridScroll = $("#noteCanvasContainer").scrollTop();
-    let arrScroll = $("#sectionArrangementContainer").scrollTop();
-    
-    let noteGridX = $("#noteCanvasContainer").position().left;
-    let noteGridY = $("#noteCanvasContainer").position().top;
-    let noteGridWidth = $("#noteCanvasContainer").width();
-    let noteGridHeight = $("#noteCanvasContainer").height();
+    let posNotes = positionValues("#noteCanvasContainer");
+    let posArr = positionValues("#sectionArrangementContainer");
 
-    let arrangementBoxX = $("#sectionArrangementContainer").position().left;
-    let arrangementBoxY = $("#sectionArrangementContainer").position().top;
-    let arrBoxWidth = $("#sectionArrangementContainer").width();
-    let arrBoxHeight = $("#sectionArrangementContainer").height();
-
-    updateNoteGridSelection(noteGridX, noteGridY - noteGridScroll, noteGridWidth, noteGridHeight + noteGridScroll);
-    updateArrangementBoxes(arrangementBoxX, arrangementBoxY - arrScroll, arrBoxWidth, arrBoxHeight + arrScroll);
-    
+    updateNoteGridSelection(posNotes);
+    updateArrangementBoxes(posArr);
     
     // if enough time has elapsed, draw the next frame
     if (elapsed > fpsInterval)
     {
-        ctxArr.clearRect(0, 0, arrBoxWidth, arrBoxHeight);
+        ctxArr.clearRect(0, 0, posArr.width, posArr.height);
 
         lastFrameTime = now;
         updateDrawNoteGrid(ctxNoteGrid);
@@ -89,6 +78,22 @@ function updateCanvas()
         mouse.clickedUp = false;
 
     window.requestAnimationFrame(updateCanvas);
+}
+
+function positionValues(id)
+{
+    let x = $(id).position().left;
+    let y = $(id).position().top;
+    let width = $(id).width();
+    let height = $(id).height();
+    let scroll = $(id).scrollTop();
+
+    return {
+        startX: x,
+        startY: y - scroll,
+        width: width,
+        height: height + scroll
+    }
 }
 
 start();

@@ -90,14 +90,14 @@ function drawArrangementGrid(ctx, startX, startY)
     drawLoopBar(ctx, startX + noteWidth + notePadding + arrangementBoxPadding, startY + creatArrBoxY + 5);
 }
 
-function updateArrangementBoxes(x, y, width, height)
+function updateArrangementBoxes(posValues)
 {
-    editBoxSelection(x, y, width, height);
-    arrangementBoxSelection(x + noteWidth, y, width, height);
+    editBoxSelection(posValues.startX, posValues.startY, posValues.width, posValues.height);
+    arrangementBoxSelection(posValues.startX + noteWidth, posValues.startY, posValues.width, posValues.height);
 
     let creatArrBoxY = arrangementBoxPadding + sections.length * (noteHeight + arrangementBoxPadding);
-    createArrBoxSelection(x, y + creatArrBoxY, width, height);
-    loopBarSelection(x + noteWidth + notePadding + arrangementBoxPadding, y + creatArrBoxY);
+    createArrBoxSelection(posValues.startX, posValues.startY + creatArrBoxY, posValues.width, posValues.height);
+    loopBarSelection(posValues.startX + noteWidth + notePadding + arrangementBoxPadding, posValues.startY + creatArrBoxY);
 }
 
 // DRAW FUNCTIONS ------------------------------------------
@@ -432,11 +432,14 @@ function selectNewArrangementSection(index)
     //Make the current part equal to the current section
     currentPart = sections[index];
     selectedEditBoxIndex = index;
+
+    //setUpEditBox
+    updateEditBoxForSection(sections[index]);
 }
 
 function AddNewSection()
 {
-    sections.push(createSection(synth));
+    sections.push(createSection(defaultInstrument()));
     let sectionIndex = sections.length - 1;
 
     currentPart = sections[sectionIndex];

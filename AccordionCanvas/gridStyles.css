@@ -5,20 +5,20 @@ body
     overflow: hidden;
 }
 
+canvas
+{
+    padding: 0;
+    margin: 0;
+}
+
 #noteCanvas
 {
     height: 200px;
-    overflow: scroll;
-    padding: 0;
-    margin: 0;
 }
 
 #arrangementCanvas
 {
     height: 100px;
-    overflow: scroll;
-    padding: 0;
-    margin: 0;
 }
 
 #noteCanvasContainer
@@ -38,4 +38,30 @@ body
     height: 100px;
     width: 546px;
     overflow: scroll;
+}
+
+#sectionEditorContainer
+{
+    position:absolute;
+    top: 0;
+    left: 546px;
+    height: 200px;
+    width: calc(100vw - 546px);
+    overflow: hidden;
+    background-color: white;
+}
+
+#html5colorpicker
+{
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 3px ;
+    padding: 0px;
+    margin: 0px;
+}
+
+#html5colorpicker:hover 
+{
+    cursor: pointer;
 }
