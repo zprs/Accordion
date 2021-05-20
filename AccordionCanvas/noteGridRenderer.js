@@ -9,8 +9,8 @@ var noteHighlightedColors = ["#ff4040", "#ff8c40", "#ffdc40", "#a9ff40", "#47ffa
 var noteLength = 1;
 var maxNoteLength = 5;
 
-var selectedNote = {x: -1, y: -1};
-var selectedOctaveNote = -1;
+var selectedNote = {x: -1, note: -1};
+var selectedKeyNote = -1;
 
 var octaveStartX = notePadding;
 var gridStartX = notePadding * 2 + noteWidth;
@@ -18,7 +18,7 @@ var gridStartY = notePadding;
 
 function updateDrawNoteGrid(ctx)
 {
-    if(selectedNote.x != -1 && selectedNote.y != -1)
+    if(selectedNote.x != -1 && selectedNote.note != -1)
     {
         //Copy the note grid to a temp note grid where we can make the changes that are going to happen in the next moment if the user were to click
         noteGridFuture = {};
@@ -29,19 +29,23 @@ function updateDrawNoteGrid(ctx)
     
             for(var y = 0; y < noteRowCount; y++)
             {
-                noteGridFuture[x][y] = {};
-                noteGridFuture[x][y].enabled = currentPart.noteGrid[x][y].enabled;
-                noteGridFuture[x][y].noteLength = currentPart.noteGrid[x][y].noteLength;
+                let note = cooridantesToCurrentNoteValue(y);
+                noteGridFuture[x][note] = {};
+
+                if(!currentPart.noteGrid[x][note])
+                    currentPart.noteGrid[x][note] = {noteLength: 0}; // add a new note if there is not one here
+                else
+                    noteGridFuture[x][note].noteLength = currentPart.noteGrid[x][note].noteLength;
             }
         }
 
-        toggleNote(noteGridFuture, selectedNote.x, selectedNote.y);
+        toggleNote(noteGridFuture, selectedNote.x, selectedNote.note);
         drawNoteGrid(ctx, noteGridFuture, gridStartX, gridStartY);
     }
     else
         drawNoteGrid(ctx, currentPart.noteGrid, gridStartX, gridStartY);
         
-    drawOctaveNotes(ctx, octaveStartX, gridStartY, currentScale);
+    drawKeyNotes(ctx, octaveStartX, gridStartY);
 
     if(currentPart != null && currentPart.part.state == "started" && !currentPart.part.mute)
         drawPlayBar(ctx, gridStartX, gridStartY, currentPart.part);
@@ -53,27 +57,25 @@ function updateNoteGridSelection(posValues)
     noteSelection(selectedNoteIndex.x, selectedNoteIndex.y);
     
     //Note in grid is clicked - Toggle that note
-    if(mouse.clickedDown && selectedNote.x != -1 && selectedNote.y != -1)
+    if(mouse.clickedDown && selectedNote.x != -1 && selectedNote.note != -1)
     {
-        var changedNotes = toggleNote(currentPart.noteGrid, selectedNote.x, selectedNote.y);
+        var changedNotes = toggleNote(currentPart.noteGrid, selectedNote.x, selectedNote.note);
 
         for (let i = 0; i < changedNotes.length; i++) {
-            const changedNoteCoors = changedNotes[i];
+            const changedNoteCoords = changedNotes[i];
 
-            var cNX = changedNoteCoors.x;
-            var cNY = changedNoteCoors.y;
+            var cNX = changedNoteCoords.x;
+            var cNote = changedNoteCoords.note;
 
-            var changedNote = currentPart.noteGrid[cNX][cNY];
-
-            var enabled = changedNote.enabled;
+            var changedNote = currentPart.noteGrid[cNX][cNote];
             var length = changedNote.noteLength;
 
-            UpdateNote(cNX, cNY, enabled, length);
+            UpdateNote(currentPart, cNX, cNote, length);
         }
     }
 }
 
-function drawOctaveNotes(ctx, startX, startY, _scale)
+function drawKeyNotes(ctx, startX, startY)
 {
     ctx.textAlign = "center";
     ctx.font = "15px Open Sans";
@@ -81,7 +83,7 @@ function drawOctaveNotes(ctx, startX, startY, _scale)
 
     for(var i = 0; i < noteRowCount; i++)
     {
-        var scaleNote = cooridantesToNoteValue(i);
+        var scaleNote = cooridantesToCurrentNoteValue(i);
 
         var addStartY = (notePadding * i) + (noteHeight * i) + startY;
         var noteFillStyle = "white";
@@ -89,7 +91,7 @@ function drawOctaveNotes(ctx, startX, startY, _scale)
         var scaleClickedColor = LightenDarkenColor(noteHighlightedColors[i % 12], 20);
         var scaleHoverColor = LightenDarkenColor(noteHighlightedColors[i % 12], 80);
 
-        if(selectedOctaveNote == i)
+        if(selectedKeyNote == i)
             noteFillStyle = mouse.clicked ?  scaleClickedColor : scaleHoverColor;
 
         ctx.fillStyle = noteFillStyle;
@@ -127,18 +129,20 @@ function drawNoteGrid(ctx, grid, gridStartX, gridStartY)
     {
         for(var y = 0; y < noteRowCount; y++)
         {
+            let noteVal = cooridantesToCurrentNoteValue(y);
+
             var startX = (notePadding * x) + (noteWidth * x) + gridStartX;
             var startY = (notePadding * y) + (noteHeight * y) + gridStartY;
 
-            var note = grid[x][y];
-            var noteExists = note && note.enabled;
+            var note = grid[x][noteVal];
+            var noteExists = note && note.noteLength > 0;
             var thisNoteLength = noteExists ? note.noteLength : 1;
 
             //note in the note grid -> need this reference to find the notlength if it is deleted in the "future note grid"
-            var currentNoteExists = currentPart.noteGrid[x][y] && currentPart.noteGrid[x][y].enabled;
-            var currentNoteLength = currentNoteExists ? currentPart.noteGrid[x][y].noteLength : 1;
+            var currentNoteExists = currentPart.noteGrid[x][noteVal] && (currentPart.noteGrid[x][noteVal].noteLength > 0);
+            var currentNoteLength = currentNoteExists ? currentPart.noteGrid[x][noteVal].noteLength : 1;
 
-            var noteIsHilighted = x == selectedNote.x && y == selectedNote.y;
+            var noteIsHilighted = x == selectedNote.x && noteVal == selectedNote.note;
             var longNoteWidth = noteWidth;
 
             var noteColor = "white";
@@ -224,51 +228,50 @@ function noteSelection(xIndex, yIndex)
         //the selected note is a scale not on the far left
         if(xIndex == 0)
         {
-            selectedOctaveNote = yIndex;
+            selectedKeyNote = yIndex;
             selectedNote.x = -1; 
-            selectedNote.y = -1;
+            selectedNote.note = -1;
         }
         else
         {
             //subtract one from x index to account for the one row of scale notes
-            selectedOctaveNote = -1;
+            selectedKeyNote = -1;
             selectedNote.x = xIndex - 1; 
-            selectedNote.y = yIndex;
+            selectedNote.note = cooridantesToCurrentNoteValue(yIndex);
         }
     }
     else
     {
-        selectedOctaveNote = -1;
+        selectedKeyNote = -1;
         selectedNote.x = -1;
-        selectedNote.y = -1;
+        selectedNote.note = -1;
     }
 }
 
-function toggleNote(grid, x, y)
+function toggleNote(grid, x, noteVal)
 {
-    var note = grid[x][y];
+    var note = grid[x][noteVal];
     var changedNotes = [];
     
     if(!note)
         return;
 
-    var newEnabled = !note.enabled;
+    var newEnabled = !(note.noteLength > 0);
     var toggleNoteLength = x + noteLength > noteColumnCount - 1 ? noteColumnCount - 1 - x : noteLength;
 
-    note.enabled = newEnabled;
-    note.noteLength = toggleNoteLength;
+    note.noteLength = newEnabled ? toggleNoteLength : 0;
 
     var noteDeleteLength = newEnabled ? toggleNoteLength : 1;
 
     //Shorten notes that overlap before
     for (let i = 0; i < x; i++) {
-        
-        if(grid[i][y] && grid[i][y].enabled)
+
+        if(grid[i][noteVal] && (grid[i][noteVal].noteLength > 0))
         {
-            if(grid[i][y].noteLength + i >= x)
+            if(grid[i][noteVal].noteLength + i >= x)
             {
-                grid[i][y].noteLength = (x - i)
-                changedNotes.push({x: i, y: y});
+                grid[i][noteVal].noteLength = (x - i);
+                changedNotes.push({x: i, note: noteVal});
             }
         }
     }
@@ -276,25 +279,20 @@ function toggleNote(grid, x, y)
     //Shorten notes that overlap after the head of this note
     for (let i = x + 1; i < x + noteDeleteLength; i++) {
         
-        if(grid[i][y] && grid[i][y].enabled)
+        if(grid[i][noteVal] && (grid[i][noteVal].noteLength > 0))
         {
-            if(grid[i][y].noteLength > 1)
+            if(grid[i][noteVal].noteLength > 1)
             {
-                grid[i + 1][y].noteLength = grid[i][y].noteLength - 1;
-                console.log(grid[i + 1][y].noteLength);
-                grid[i + 1][y].enabled = true;
-
-                changedNotes.push({x: i + 1, y: y});
+                grid[i + 1][noteVal].noteLength = grid[i][noteVal].noteLength - 1;
+                changedNotes.push({x: i + 1, note: noteVal});
             }
 
-            grid[i][y].noteLength = 0;
-            grid[i][y].enabled = false;
-
-            changedNotes.push({x: i, y: y});
+            grid[i][noteVal].noteLength = 0;
+            changedNotes.push({x: i, note: noteVal});
         }
     }
 
-    changedNotes.push({x: x, y: y});
+    changedNotes.push({x: x, note: noteVal});
     return changedNotes;
 }
 

@@ -23,22 +23,34 @@ let sections = [];
 let defaultInstrumentType = "synth";
 let defaultInstrument = "triangle";
 
-let notesPerMeasure = 4;
-let measurePerPart = 4;
+let measuresPerPart = 4;
 let numberOfPartsPerSong = 8;
+
+let timeSignatureTop = 4;
+let timeSignatureBot = 4;
+
 let numberOfOctaves = 4;
 let startingOctave = 2;
 
-Tone.Transport.timeSignature = 4;
 Tone.Transport.loop = true;
-Tone.Transport.loopEnd = measurePerPart * numberOfPartsPerSong + "m";
+Tone.Transport.loopEnd = measuresPerPart * numberOfPartsPerSong + "m";
 
-//To be changed to the actual values of scale
-let currentScale = chromaticScales["C"];
+let defaultScaleType = "Chromatic";
+let defaultScaleKey = "C";
+let allNoteScale = scales["Chromatic"]["C"];
 
 //Number of notes in the note grid
-let noteColumnCount = notesPerMeasure * measurePerPart + 1; //plus one for the scale column
-let noteRowCount = currentScale.length * numberOfOctaves;
+let noteColumnCount;
+let noteRowCount;
+
+function setNoteColumCount() { noteColumnCount = timeSignatureTop * measuresPerPart + 1 };  //plus one for the scale column
+function setNoteRowCount(section) { noteRowCount = scales[section.scaleType][section.scale].length * numberOfOctaves };
+
+function setNoteCount(section)
+{
+    setNoteColumCount();
+    setNoteRowCount(section);
+}
 
 let playingMusic = false;
 let currentPart = null;
@@ -46,31 +58,32 @@ let currentPart = null;
 //This will be used as our "blocks" of music that are able to be played
 function createSection(instrumentType, instrument)
 {
-
-    
-    let newNoteGrid = {};
-
-    for(let x = 0; x < noteColumnCount; x++)
-    {
-        newNoteGrid[x] = {};
-
-        for(let y = 0; y < noteRowCount; y++)
-        {
-            newNoteGrid[x][y] = {enabled: false, noteLength: 0};
-        }
-    }
-    
     let color = noteHighlightedColors[sections.length];
 
     let createdPart = {
         part: null,
         partObj: {}, //When adding a note to the part, we also add it to this object (A way to save the state because it is hard to get values back out of part once they are put in)
         instrumentObj: null,
-        noteGrid: newNoteGrid,
+        noteGrid: {},
         color: color,
         instrument: instrument,
         instrumentType: "synth",
-        volume: null
+        volume: null,
+        scale: defaultScaleKey,
+        scaleType: defaultScaleType
+    }
+
+    setNoteCount(createdPart);
+
+    for(let x = 0; x < noteColumnCount; x++)
+    {
+        createdPart.noteGrid[x] = {};
+
+        for(let y = 0; y < allKeys.length * numberOfOctaves; y++)
+        {
+            let note = cooridantesToNoteValue(y);
+            createdPart.noteGrid[x][note] = {noteLength: 0};
+        }
     }
 
     createdPart.instrumentObj = instruments[createdPart.instrumentType][createdPart.instrument]();
@@ -78,9 +91,10 @@ function createSection(instrumentType, instrument)
     createdPart.part = newPart(createdPart);
     
     createdPart.part.loop = true;
-    createdPart.part.loopEnd = measurePerPart + "m";
+    createdPart.part.loopEnd = measuresPerPart + "m";
 
     sections.push(createdPart);
+
 }
 
 function newPart(part)
@@ -110,27 +124,36 @@ function createSectionFromTemplate(obj)
         color: obj.color,
         instrument: obj.instrument,
         instrumentType: obj.instrumentType,
-        volume: instrument.volume
+        volume: instrument.volume,
+        scale: obj.scale,
+        scaleType: obj.scaleType
     }
 
     createdPart.volume.value = obj.volume;
     
     createdPart.part = newPart(createdPart);
     createdPart.part.loop = true;
-    createdPart.part.loopEnd = measurePerPart + "m";
+    createdPart.part.loopEnd = measuresPerPart + "m";
 
     sections.push(createdPart);
 
     AddAllNotesInPartObj(createdPart.part, createdPart.partObj);
 }
 
-function SetTimeSignature(timeSignatureTop, timeSignatureBot) { Tone.Transport.timeSignature = [timeSignatureTop, timeSignatureBot]; }
+function SetTimeSignature(_timeSignatureTop, _timeSignatureBot) { 
+    Tone.Transport.timeSignature = [_timeSignatureTop, _timeSignatureBot]; 
+    timeSignatureTop = _timeSignatureTop; 
+    timeSignatureBot = _timeSignatureBot;
+
+    noteColumnCount = timeSignatureTop * measuresPerPart + 1;
+    changeMeasuresPerPart(measuresPerPart);
+}
 function SetBPM(bpm) { Tone.Transport.bpm.value = bpm; }
 
 function setLoopStartAndEnd(startIndex, endIndex)
 {
-    Tone.Transport.loopStart = startIndex * measurePerPart + "m";
-    Tone.Transport.loopEnd =  endIndex * measurePerPart + "m";
+    Tone.Transport.loopStart = startIndex * measuresPerPart + "m";
+    Tone.Transport.loopEnd =  endIndex * measuresPerPart + "m";
 
     Tone.Transport.position = Tone.Transport.loopStart;
 }
@@ -153,20 +176,108 @@ function togglePlayPause()
     playingMusic = !playingMusic;
 }
 
+function changeMeasuresPerPart(val)
+{
+    measuresPerPart = val;
+    noteColumnCount = measuresPerPart * timeSignatureTop + 1;
+
+    for (let i = 0; i < sections.length; i++) {
+        const section = sections[i];
+        section.part.loopEnd = measuresPerPart + "m";
+        adjustSectionWidth(noteColumnCount, section);
+
+        let sectionIndex = sections.indexOf(section);
+        updateSectionEnabled(sectionIndex, sectionArangement[sectionIndex]);
+    }
+
+    setLoopStartAndEnd(loopSelectionIndexes.start, loopSelectionIndexes.end);
+}
+
+function changeSectionScale(scaleType, scale, section)
+{
+    updateNotesToNoteScale(section, scales[scaleType][scale]);
+    
+    section.scaleType = scaleType;
+    section.scale = scale;
+    setNoteCount(section);
+    updateNoteGridHeight(); //update the canvas height
+}
+
+function updateNotesToNoteScale(section, newScale)
+{
+    var currentScale = scales[section.scaleType][section.scale];
+
+    //Remove all note play events from part that will be removed when the notgrid is changed
+    for (let x = 0; x < Object.keys(section.noteGrid).length; x++) {
+        for (let y = 0; y < Object.keys(section.noteGrid[x]).length; y++) {
+            let noteValue = cooridantesToNoteValue(y);
+
+            if(section.noteGrid[x][noteValue])
+            {
+                let noteLength = section.noteGrid[x][noteValue].noteLength;
+                let noteEnabled = noteLength > 0;
+    
+                if(noteEnabled)
+                {
+                    //slice to remove the last char to remove the octave digit
+                    let setNoteLength = newScale.includes(noteValue.slice(0, -1)) ? noteLength : 0 ;
+                    //if the note is in the current scale, set it to its note length (enable it), else, set note lenght to 0 (disable it)
+                    UpdateNote(section, x, noteValue, setNoteLength);
+                }
+            }
+            else
+                console.log("wtf bro");
+
+        }   
+    }
+}
+
+function adjustSectionWidth(x, section)
+{
+    let currentWidth = Object.keys(section.noteGrid).length;
+
+    //Adding Columns
+    if(currentWidth < x)
+    {
+        for (let i = currentWidth; i < x; i++) {
+            section.noteGrid[i] = {};
+            
+            for (let y = 0; y < noteRowCount; y++) {
+                section.noteGrid[i][y] = {noteLength: 0};
+            }
+        }
+    }
+    else if (currentWidth > x) // Removing columns
+    {
+        for (let i = x - 1; i < currentWidth; i++) {
+            RemoveNote(section.part, section.partObj, cooridantesToNoteTiming(i));
+            clearNoteColumn(section.noteGrid, i);
+        }
+    }
+}
+
+function clearNoteColumn(noteGrid, x)
+{
+    for (let y = 0; y < noteRowCount; y++) {
+        noteGrid[x][y] = {noteLength: 0};
+    }
+}
+
 //SCHEDULING NOTE SECTONS ---------------
 
-
-//returns the event created
 function toggleSectionOnOff(timeIndex, part, on)
 {
-    let measure = measurePerPart * timeIndex;
+    let measure = measuresPerPart * timeIndex;
     
     var eventId = Tone.Transport.schedule(function(time) {
         part.mute = !on;
     }, measure + "m");
+
+    console.log(measure + "m");
     
     //disposal function
     return () => {
-        delete Tone.Transport._scheduledEvents[eventId];
+        Tone.Transport.clear(eventId);
+        // Tone.Transport._scheduledEvents[eventId];
     }
 }

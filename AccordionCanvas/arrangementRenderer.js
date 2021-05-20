@@ -63,7 +63,7 @@ function drawArrangementGrid(ctx, startX, startY)
 
         for(let x = 0; x < numberOfPartsPerSong; x++)
         {
-            let isFilled = checkForSectionState(y, x).filled;
+            let isFilled = sectionState(y, x).filled;
             let isHovered = x == targetArrangementBoxIndexes.x && y == targetArrangementBoxIndexes.y;
 
             if(isFilled)
@@ -310,7 +310,7 @@ function arrangementBoxSelection(startX, startY, width, height)
     {
         let sectionIndex = targetArrangementBoxIndexes.y;
         let timeIndex = targetArrangementBoxIndexes.x;
-        let empty = !checkForSectionState(sectionIndex, timeIndex).filled;
+        let empty = !sectionState(sectionIndex, timeIndex).filled;
         
         if(empty && selectedEditBoxIndex != -1) // The box is empty -> add a new box (if a bank box is selected)
             toggleSection(sectionIndex, timeIndex, true);
@@ -363,7 +363,6 @@ function loopBarSelection(startX, startY)
     if(loopBarSelected)
         loopEndIndex = getClosestLoopBarIndex(startX, mouse.x);
 
-
 }
 
 function getClosestLoopBarIndex(startX, x)
@@ -392,7 +391,7 @@ function loopBarHandleXPositionFromIndex(startX, i)
 
 // Utility -------------------------------------------------
 
-function checkForSectionState(sectionIndex, timeIndex)
+function sectionState(sectionIndex, timeIndex)
 {
     let sectionExists = sectionArangement[sectionIndex] != null;
     let objectExists = sectionExists && sectionArangement[sectionIndex][timeIndex] != null;
@@ -411,13 +410,14 @@ function getArrBoxPositionFromCoords(startX, startY, x, y)
 }
 
 // Section Managment  --------------------------------------
+
 function toggleSection(sectionIndex, timeIndex, on)
 {
-    let sectionState = checkForSectionState(sectionIndex, timeIndex);
+    let state = sectionState(sectionIndex, timeIndex);
 
-    if(!sectionState.exists)
+    if(!state.exists)
         sectionArangement[sectionIndex] = [];
-    else if (sectionState.objectExists)
+    else if (state.objectExists)
         sectionArangement[sectionIndex][timeIndex].dispose();
 
     var event = toggleSectionOnOff(timeIndex, sections[sectionIndex].part, on)
@@ -435,6 +435,7 @@ function selectNewArrangementSection(index)
 
     //setUpEditBox
     updateEditBoxForSection(sections[index]);
+    
 }
 
 function AddNewSectionDefault()
@@ -459,10 +460,15 @@ function AddNewSection(obj, arrangementArr)
     createSectionFromTemplate(obj);
     let sectionIndex = sections.length - 1;
 
-    for (let i = 0; i < numberOfPartsPerSong; i++) {
-        toggleSection(sectionIndex, i, arrangementArr[i].enabled);
-    }
+    updateSectionEnabled(sectionIndex, arrangementArr);
 
     if(playingMusic)
         togglePlayPause();
+}
+
+function updateSectionEnabled(sectionIndex, arrangementArr)
+{
+    for (let i = 0; i < numberOfPartsPerSong; i++) {
+        toggleSection(sectionIndex, i, arrangementArr[i].enabled);
+    }
 }

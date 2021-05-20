@@ -27,22 +27,35 @@ createHiDPICanvas = function(id, w, h, ratio) {
     return can;
 }
 
+function setCanvasHeight(id, h, ratio)
+{
+    var can = document.getElementById(id);
+    can.height = h * ratio;
+    can.style.height = h + "px";
+    can.getContext("2d").setTransform(ratio, 0, 0, ratio, 0, 0);
+}
+
 // For running at a lower fps
 let lastFrameTime = 0;
 let fps = 40;
 let fpsInterval = 1000 / fps;
 
+let HDPI_RATIO = 2;
+
+
 function startCanvas()
 {
-    noteGridCanvas = createHiDPICanvas("noteCanvas", window.innerWidth, (noteHeight + notePadding) * noteRowCount + notePadding, 2);
-    arrCavnas = createHiDPICanvas("arrangementCanvas", window.innerWidth, window.innerHeight, 2);
-    
+    noteGridCanvas = createHiDPICanvas("noteCanvas", window.innerWidth, 0, HDPI_RATIO);
+    arrCavnas = createHiDPICanvas("arrangementCanvas", window.innerWidth, window.innerHeight, HDPI_RATIO);
+
     ctxNoteGrid = noteGridCanvas.getContext("2d");
     ctxArr = arrCavnas.getContext("2d");
 
     SetBPM(240);
+    SetTimeSignature(4,4)
     AddNewSectionDefault();
     setLoopStartAndEnd(loopSelectionIndexes.start, loopSelectionIndexes.end);
+    updateNoteGridHeight();
     lastFrameTime = Date.now();
 
     window.requestAnimationFrame(updateCanvas);
@@ -62,6 +75,7 @@ function updateCanvas()
     // if enough time has elapsed, draw the next frame
     if (elapsed > fpsInterval)
     {
+        ctxNoteGrid.clearRect(0, 0, posNotes.width, posNotes.height);
         ctxArr.clearRect(0, 0, posArr.width, posArr.height);
 
         lastFrameTime = now;
@@ -79,19 +93,25 @@ function updateCanvas()
     window.requestAnimationFrame(updateCanvas);
 }
 
+function updateNoteGridHeight()
+{
+    setCanvasHeight("noteCanvas", (noteHeight + notePadding) * noteRowCount + notePadding, HDPI_RATIO);
+}
+
 function positionValues(id)
 {
     let x = $(id).position().left;
     let y = $(id).position().top;
     let width = $(id).width();
     let height = $(id).height();
-    let scroll = $(id).scrollTop();
+    let scrollY = $(id).scrollTop();
+    let scrollX = $(id).scrollLeft();
 
     return {
-        startX: x,
-        startY: y - scroll,
-        width: width,
-        height: height + scroll
+        startX: x - scrollX,
+        startY: y - scrollY,
+        width: width + scrollX,
+        height: height + scrollY
     }
 }
 

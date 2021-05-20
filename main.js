@@ -133,3 +133,14 @@ ipcMain.on('openFile', (event, data) => {
 
   });
 });
+
+ipcMain.on("warning", (event, data) => {
+
+  let buttons = [data.confirm, data.deny];
+
+  dialog.showMessageBox(mainWindow, {message: data.message, type: "warning", buttons: buttons}).then( (response) =>
+  {
+    event.returnValue = response.response == 0;
+  });
+  
+});

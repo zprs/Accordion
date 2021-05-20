@@ -29,10 +29,10 @@ function fileJSONCreation()
             
             let enabledNotes = {};
             
-            Object.keys(section.noteGrid[x]).map( y => {
-                
-                if(section.noteGrid[x][y].enabled)
-                    enabledNotes[y] = section.noteGrid[x][y];
+            Object.keys(section.noteGrid[x]).map( note => {
+    
+                if(section.noteGrid[x][note].noteLength > 0)
+                    enabledNotes[note] = section.noteGrid[x][note];
             });
                 
             return enabledNotes;
@@ -47,7 +47,9 @@ function fileJSONCreation()
                 color: section.color,
                 instrument: section.instrument,
                 instrumentType: section.instrumentType,
-                volume: section.volume.value
+                volume: section.volume.value,
+                scale: section.scale,
+                scaleType: section.scaleType
             }
         )
     });
@@ -60,6 +62,10 @@ function fileJSONCreation()
 
     obj.currentPart = sections.indexOf(currentPart);
 
+    obj.bpm = Tone.Transport.bpm.value;
+    obj.timeSig = {top: timeSignatureTop, bot: timeSignatureBot};
+    obj.measuresPerPart = measuresPerPart;
+
     return obj;
 }
 
@@ -67,6 +73,10 @@ function fileOpenJSONParse(obj)
 {
     sectionArangement = [];
     sections = [];
+
+    SetTimeSignature(obj.timeSig.top, obj.timeSig.bot);
+    changeMeasuresPerPart(obj.measuresPerPart);
+    SetBPM(obj.bpm);
 
     obj.sections.map((section, i) => {
         fullNoteGrid = {};
@@ -77,8 +87,10 @@ function fileOpenJSONParse(obj)
 
             for(let y = 0; y < noteRowCount; y++)
             {
-                let noteExists = section.noteGrid[x] && section.noteGrid[x][y];
-                fullNoteGrid[x][y] = noteExists ? section.noteGrid[x][y] : {enabled: false, noteLength: 0};
+                let note = cooridantesToNoteValue(y);
+
+                let noteExists = section.noteGrid[x] && section.noteGrid[x][note];
+                fullNoteGrid[x][note] = noteExists ? section.noteGrid[x][note] : {noteLength: 0};
             }
         }
 
@@ -89,3 +101,11 @@ function fileOpenJSONParse(obj)
 
     selectNewArrangementSection(obj.currentPart);
 }
+
+
+
+// NOT FILE MANAGMENT RELATED -- IPC NEEDS ITS OWN CLASS
+
+ipcRenderer.on('openFileReply', (event, data) => {
+    fileOpenJSONParse(data);
+});

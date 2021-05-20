@@ -1,5 +1,4 @@
 var majorScales = {
-    // "C": ["B","A","G","F","E","D","C"],
     "C": ["C","D","E","F","G","A","B"],
     "C#": ["Db","Eb","F","Gb","Ab","Bb","C"],
     "D#": ["Eb","F","G","Ab","Bb","C","D"],
@@ -51,3 +50,4 @@ var scales = {
 }
 
 var keys = ["C#","C","D#","D","E","F#","F","G#","G","A#","A","B",];
+var allKeys = ["C","C#","Db","D","D#","Eb","E","F","F#","Gb","G","G#","Ab","A","A#","Bb","B","B#"];
