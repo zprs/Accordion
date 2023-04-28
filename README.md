@@ -2,6 +2,8 @@
 
 Accordion is a simple music maker application intended for game developers. This project is intended to fill a gap in the music creation market that is between *super* simple music creation apps that do give the user options to diversify their music and lock users into a single genre, and complex music creation software that is inaccessible to average people who do not specialize in music creation.
 
+![Screenshot of the program](https://github.com/zprs/Accordion/blob/main/AccordionScreenshot.png?raw=true)
+
 ## Goals
 
 The key goals for this project include:
