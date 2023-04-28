@@ -4,6 +4,19 @@ Accordion is a simple music maker application intended for game developers. This
 
 ![Screenshot of the program](https://github.com/zprs/Accordion/blob/main/AccordionScreenshot.png?raw=true)
 
+### Running the application
+1. Clone the git repo
+2. Run npm i to intall electron and other npm dependencies
+```bash
+npm i
+```
+
+3. Run the the application
+
+```bash
+npm start
+```
+
 ## Goals
 
 The key goals for this project include:
