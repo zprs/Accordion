@@ -68,7 +68,7 @@ function updateEditSectionBoxColor()
     $("#sectionEditorContainer").css('background-color', LightenDarkenColor(currentPart.color, 100));
 }
 
-//Value Change Events --------
+//Value Change Events --------------------------------
 
 $("#sectionVolume").change(() => {
 
@@ -105,7 +105,7 @@ $("#scaleSelector").change(() => {
     changeSectionScale(currentPart.scaleType, scale, currentPart);
 });
 
-//----------------------------
+//----------------------------------------------------
 
 function updateSectionInstrument(type, val)
 {

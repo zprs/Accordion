@@ -13,12 +13,18 @@ document.addEventListener("keydown", event => {
             event.preventDefault()
             togglePlayPause();
         break;
-            
+    }
+
+    if (event.metaKey && event.key === 'z') {
+
+        if(event.shiftKey)
+            redo();
+        else
+            undo();
     }
 });
 
 document.addEventListener("keypress", event => {
-
     switch(event.key)
     {
         

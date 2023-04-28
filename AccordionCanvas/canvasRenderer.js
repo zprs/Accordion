@@ -69,6 +69,7 @@ function updateCanvas()
     let posNotes = positionValues("#noteCanvasContainer");
     let posArr = positionValues("#sectionArrangementContainer");
 
+    updateUserInput();
     updateNoteGridSelection(posNotes);
     updateArrangementBoxes(posArr);
     

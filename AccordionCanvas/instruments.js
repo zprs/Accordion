@@ -43,8 +43,5 @@ function getInstrument(voiceType, type)
             return new Tone.Sampler(options).toDestination();
         break;
     }
-    
-
-    
 }
 

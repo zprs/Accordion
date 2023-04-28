@@ -38,7 +38,6 @@ function updateDrawNoteGrid(ctx)
                     noteGridFuture[x][note].noteLength = currentPart.noteGrid[x][note].noteLength;
             }
         }
-
         toggleNote(noteGridFuture, selectedNote.x, selectedNote.note);
         drawNoteGrid(ctx, noteGridFuture, gridStartX, gridStartY);
     }
@@ -55,24 +54,26 @@ function updateNoteGridSelection(posValues)
 {
     let selectedNoteIndex = gridSelection(octaveStartX + posValues.startX, gridStartY + posValues.startY, noteWidth, noteHeight, notePadding, noteColumnCount, noteRowCount, posValues.width, posValues.height);
     noteSelection(selectedNoteIndex.x, selectedNoteIndex.y);
-    
+}
+
+function user_toggleNote(x, note, part, overwriteLength)
+{
     //Note in grid is clicked - Toggle that note
-    if(mouse.clickedDown && selectedNote.x != -1 && selectedNote.note != -1)
-    {
-        var changedNotes = toggleNote(currentPart.noteGrid, selectedNote.x, selectedNote.note);
+    
+    var changedNotes = [...toggleNote(part.noteGrid, x, note, overwriteLength)];
+    
+    for (let i = 0; i < changedNotes.length; i++) {
+        const changedNote = changedNotes[i];
 
-        for (let i = 0; i < changedNotes.length; i++) {
-            const changedNoteCoords = changedNotes[i];
+        var cNX = changedNote.x;
+        var cNote = changedNote.note;
+        var length = changedNote.newLength;
+        changedNotes[i].part = part;
 
-            var cNX = changedNoteCoords.x;
-            var cNote = changedNoteCoords.note;
-
-            var changedNote = currentPart.noteGrid[cNX][cNote];
-            var length = changedNote.noteLength;
-
-            UpdateNote(currentPart, cNX, cNote, length);
-        }
+        UpdateNote(part, cNX, cNote, length);
     }
+
+    return changedNotes;
 }
 
 function drawKeyNotes(ctx, startX, startY)
@@ -248,7 +249,7 @@ function noteSelection(xIndex, yIndex)
     }
 }
 
-function toggleNote(grid, x, noteVal)
+function toggleNote(grid, x, noteVal, overwriteLength)
 {
     var note = grid[x][noteVal];
     var changedNotes = [];
@@ -256,10 +257,16 @@ function toggleNote(grid, x, noteVal)
     if(!note)
         return;
 
+        
     var newEnabled = !(note.noteLength > 0);
     var toggleNoteLength = x + noteLength > noteColumnCount - 1 ? noteColumnCount - 1 - x : noteLength;
+        
+    if(overwriteLength != null)
+        toggleNoteLength = x + overwriteLength > noteColumnCount - 1 ? noteColumnCount - 1 - x : overwriteLength;
 
+    let oldLength = note.noteLength;
     note.noteLength = newEnabled ? toggleNoteLength : 0;
+    changedNotes.push({x: x, note: noteVal, oldLength: oldLength, newLength: note.noteLength});
 
     var noteDeleteLength = newEnabled ? toggleNoteLength : 1;
 
@@ -270,8 +277,9 @@ function toggleNote(grid, x, noteVal)
         {
             if(grid[i][noteVal].noteLength + i >= x)
             {
+                oldLength = grid[i][noteVal].noteLength;
                 grid[i][noteVal].noteLength = (x - i);
-                changedNotes.push({x: i, note: noteVal});
+                changedNotes.push({x: i, note: noteVal, oldLength: oldLength, newLength: grid[i][noteVal].noteLength});
             }
         }
     }
@@ -283,16 +291,17 @@ function toggleNote(grid, x, noteVal)
         {
             if(grid[i][noteVal].noteLength > 1)
             {
+                oldLength = grid[i][noteVal].noteLength;
                 grid[i + 1][noteVal].noteLength = grid[i][noteVal].noteLength - 1;
-                changedNotes.push({x: i + 1, note: noteVal});
+                changedNotes.push({x: i + 1, note: noteVal, oldLength: oldLength, newLength: grid[i + 1][noteVal].noteLength});
             }
 
+            oldLength = grid[i][noteVal].noteLength;
             grid[i][noteVal].noteLength = 0;
-            changedNotes.push({x: i, note: noteVal});
+            changedNotes.push({x: i, note: noteVal, oldLength: oldLength, newLength: grid[i][noteVal].noteLength});
         }
     }
 
-    changedNotes.push({x: x, note: noteVal});
     return changedNotes;
 }
 
